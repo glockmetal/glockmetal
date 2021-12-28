@@ -1,0 +1,3 @@
+- 👋 Hi, I’m @glockmetal
+- 👀 I’m interested in front end web development, fullstack, and app development.
+- 🌱 I’m currently learning front end web devlopment.
