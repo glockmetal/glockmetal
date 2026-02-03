@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alimony Adventure</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Title Screen -->
+        <div id="title-screen" class="screen active">
+            <h1 class="game-title">ALIMONY ADVENTURE</h1>
+            <div id="menu">
+                <div class="menu-item selected" data-action="start">> START GAME</div>
+                <div class="menu-item" data-action="options">  OPTIONS</div>
+                <div class="menu-item" data-action="credits">  CREDITS</div>
+            </div>
+            <div class="instructions">
+                <p>Use [W][A][S][D] or Arrow Keys to navigate</p>
+                <p>Press [ENTER] or [SPACE] to select</p>
+            </div>
+        </div>
+
+        <!-- Options Screen -->
+        <div id="options-screen" class="screen">
+            <h2>OPTIONS</h2>
+            <div class="options-content">
+                <p class="option-warning">This game cannot be saved.</p>
+                <p class="option-warning">This game cannot be paused.</p>
+                <p class="option-info">Sound: ON (Press [M] to toggle)</p>
+            </div>
+            <div class="menu-item selected" data-action="back">> BACK</div>
+        </div>
+
+        <!-- Credits Screen -->
+        <div id="credits-screen" class="screen">
+            <h2>CREDITS</h2>
+            <div class="credits-content">
+                <p>A game about responsibility</p>
+                <p>and the price of freedom.</p>
+                <br>
+                <p>Created with desperation and</p>
+                <p>a court-ordered sense of duty.</p>
+            </div>
+            <div class="menu-item selected" data-action="back">> BACK</div>
+        </div>
+
+        <!-- Instructions Screen -->
+        <div id="instructions-screen" class="screen">
+            <h2>HOW TO PLAY</h2>
+            <div class="instructions-content">
+                <p class="story">This is a story about a divorced father</p>
+                <p class="story">trying to make alimony payments.</p>
+                <br>
+                <p class="rule">This game cannot be saved.</p>
+                <p class="rule">This game cannot be paused.</p>
+                <br>
+                <p class="duration">This game will last as long as your child is:</p>
+                <p class="condition">A: Alive</p>
+                <p class="condition">B: A Minor</p>
+                <p class="condition">C: Still under the custody of your ex-wife</p>
+                <br>
+                <p class="controls">[W/A/S/D] or [Arrows] - Move</p>
+                <p class="controls">[SPACE] - Interact / Attack</p>
+                <p class="controls">[I] - Inventory</p>
+                <p class="controls">[ESC] - Give Up (Quit)</p>
+            </div>
+            <div class="menu-item selected" data-action="continue">> CONTINUE</div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div id="game-header">
+                <div id="player-stats">
+                    <span id="health">HP: 100/100</span>
+                    <span id="money">$: 0</span>
+                    <span id="alimony-due">ALIMONY DUE: $500</span>
+                </div>
+                <div id="child-status">
+                    <span id="child-age">Child Age: 5</span>
+                    <span id="days-until-payment">Days Until Payment: 30</span>
+                </div>
+            </div>
+            <div id="game-map"></div>
+            <div id="game-log">
+                <p>Welcome to the dungeon. Find money to pay your alimony.</p>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameover-screen" class="screen">
+            <h2 id="gameover-title">GAME OVER</h2>
+            <div id="gameover-reason"></div>
+            <div id="final-stats"></div>
+            <div class="menu-item selected" data-action="restart">> TRY AGAIN</div>
+            <div class="menu-item" data-action="quit">  QUIT</div>
+        </div>
+
+        <!-- Victory Screen -->
+        <div id="victory-screen" class="screen">
+            <h2>FREEDOM!</h2>
+            <div class="victory-content">
+                <p>Your child has turned 18.</p>
+                <p>You are free from alimony payments.</p>
+                <p>Was it worth it?</p>
+            </div>
+            <div id="victory-stats"></div>
+            <div class="menu-item selected" data-action="restart">> PLAY AGAIN</div>
+        </div>
+    </div>
+
+    <script src="js/constants.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/entities.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
