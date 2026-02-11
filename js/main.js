@@ -40,6 +40,7 @@ function menuUp() {
     if (items.length > 0) {
         selectedMenuIndex = (selectedMenuIndex - 1 + items.length) % items.length;
         updateMenuSelection();
+        if (sound) sound.menuMove();
     }
 }
 
@@ -48,6 +49,7 @@ function menuDown() {
     if (items.length > 0) {
         selectedMenuIndex = (selectedMenuIndex + 1) % items.length;
         updateMenuSelection();
+        if (sound) sound.menuMove();
     }
 }
 
@@ -58,12 +60,20 @@ function menuSelect() {
     const selectedItem = items[selectedMenuIndex];
     const action = selectedItem.dataset.action;
 
+    if (sound) sound.menuSelect();
+
     switch (action) {
         case 'start':
             showScreen('instructions-screen');
             break;
 
+        case 'scores':
+            updateHighScoresScreen();
+            showScreen('scores-screen');
+            break;
+
         case 'options':
+            updateSoundStatus();
             showScreen('options-screen');
             break;
 
@@ -87,6 +97,10 @@ function menuSelect() {
             }
             break;
 
+        case 'toggleSound':
+            toggleSound();
+            break;
+
         case 'quit':
             showScreen('title-screen');
             game = null;
@@ -94,7 +108,44 @@ function menuSelect() {
     }
 }
 
+function toggleSound() {
+    if (sound) {
+        const enabled = sound.toggle();
+        updateSoundStatus();
+        if (enabled) sound.menuSelect();
+    }
+}
+
+function updateSoundStatus() {
+    const statusEl = document.getElementById('sound-status');
+    if (statusEl && sound) {
+        statusEl.textContent = sound.enabled ? 'ON' : 'OFF';
+        statusEl.style.color = sound.enabled ? '#00ff00' : '#ff0000';
+    }
+}
+
+function updateHighScoresScreen() {
+    const scoresContent = document.getElementById('high-scores-content');
+    const statsContent = document.getElementById('lifetime-stats-content');
+
+    if (scoresContent && highScores) {
+        scoresContent.innerHTML = highScores.getScoresHTML();
+    }
+    if (statsContent && highScores) {
+        statsContent.innerHTML = highScores.getStatsHTML();
+    }
+}
+
 function startGame() {
+    // Initialize sound system on first interaction
+    if (sound && !sound.initialized) {
+        sound.init();
+    }
+    if (sound) sound.startGame();
+
+    // Initialize effects
+    if (effects) effects.init();
+
     game = new Game();
     game.init();
     showScreen('game-screen');
@@ -106,6 +157,12 @@ document.addEventListener('keydown', (e) => {
     // Prevent default for game keys
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd', 'W', 'A', 'S', 'D', ' ', 'Enter', 'Escape'].includes(e.key)) {
         e.preventDefault();
+    }
+
+    // Global sound toggle
+    if (e.key === 'm' || e.key === 'M') {
+        toggleSound();
+        return;
     }
 
     // Game screen controls

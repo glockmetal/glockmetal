@@ -16,6 +16,7 @@
             <h1 class="game-title">ALIMONY ADVENTURE</h1>
             <div id="menu">
                 <div class="menu-item selected" data-action="start">> START GAME</div>
+                <div class="menu-item" data-action="scores">  HIGH SCORES</div>
                 <div class="menu-item" data-action="options">  OPTIONS</div>
                 <div class="menu-item" data-action="credits">  CREDITS</div>
             </div>
@@ -27,15 +28,31 @@
             </div>
         </div>
 
+        <!-- High Scores Screen -->
+        <div id="scores-screen" class="screen">
+            <h2>HIGH SCORES</h2>
+            <div id="high-scores-content" class="scores-content">
+                <p class="no-scores">No high scores yet. Get to work!</p>
+            </div>
+            <h3>LIFETIME STATS</h3>
+            <div id="lifetime-stats-content" class="stats-content"></div>
+            <div class="menu-item selected" data-action="back">> BACK</div>
+        </div>
+
         <!-- Options Screen -->
         <div id="options-screen" class="screen">
             <h2>OPTIONS</h2>
             <div class="options-content">
                 <p class="option-warning">This game cannot be saved.</p>
                 <p class="option-warning">This game cannot be paused.</p>
-                <p class="option-info">Sound: ON (Press [M] to toggle)</p>
+                <div class="option-toggle">
+                    <span>Sound:</span>
+                    <span id="sound-status" class="option-value">ON</span>
+                </div>
+                <p class="option-hint">[M] to toggle sound</p>
             </div>
-            <div class="menu-item selected" data-action="back">> BACK</div>
+            <div class="menu-item selected" data-action="toggleSound">> TOGGLE SOUND</div>
+            <div class="menu-item" data-action="back">  BACK</div>
         </div>
 
         <!-- Credits Screen -->
@@ -143,6 +160,9 @@
 
     <script src="js/constants.js"></script>
     <script src="js/utils.js"></script>
+    <script src="js/sound.js"></script>
+    <script src="js/effects.js"></script>
+    <script src="js/highscores.js"></script>
     <script src="js/map.js"></script>
     <script src="js/entities.js"></script>
     <script src="js/player.js"></script>

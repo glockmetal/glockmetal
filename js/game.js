@@ -41,6 +41,9 @@ class Game {
         // Stats
         this.totalExpenses = 0;
         this.eventsExperienced = [];
+
+        // Bonus tracking
+        this.hasPermanentBonus = false;
     }
 
     init() {
@@ -161,6 +164,8 @@ class Game {
             return;
         }
 
+        if (sound) sound.npcTalk();
+
         // Get a random dialogue
         const dialogue = randomChoice(npc.dialogues);
         this.log(`${npc.name}: ${dialogue}`);
@@ -194,6 +199,9 @@ class Game {
         const playerDamage = this.player.attack(enemy);
         this.log(formatMessage(MESSAGES.ENEMY_HIT, { enemy: enemy.name, damage: playerDamage }));
 
+        if (sound) sound.enemyHit();
+        if (effects) effects.shakeLight();
+
         if (!enemy.isAlive()) {
             const moneyDrop = enemy.getMoneyDrop();
             this.player.addMoney(moneyDrop);
@@ -202,9 +210,12 @@ class Game {
             const leveledUp = this.player.addExp(enemy.expValue);
 
             this.log(formatMessage(MESSAGES.ENEMY_KILLED, { enemy: enemy.name, money: moneyDrop }));
+            if (sound) sound.enemyKilled();
+            if (effects) effects.flashMoney();
 
             if (leveledUp) {
                 this.log(formatMessage(MESSAGES.LEVEL_UP, { level: this.player.level }));
+                if (sound) sound.levelUp();
             }
 
             this.map.removeEntity(enemy);
@@ -217,21 +228,27 @@ class Game {
         if (item.type === 'money') {
             this.player.addMoney(item.value);
             this.log(`${item.name}: +${formatMoney(item.value)}`);
+            if (sound) sound.money();
+            if (effects) effects.flashMoney();
         } else if (item.type === 'consumable') {
             if (item.effect === 'heal') {
                 this.player.heal(item.value);
                 this.log(`${item.name}: +${item.value} HP`);
+                if (sound) sound.heal();
+                if (effects) effects.flashHeal();
             }
         } else if (item.type === 'weapon') {
             const oldAttack = this.player.getAttackPower();
             this.player.equipWeapon(item);
             const newAttack = this.player.getAttackPower();
             this.log(`Equipped ${item.name}! ATK: ${oldAttack} -> ${newAttack}`);
+            if (sound) sound.equip();
         } else if (item.type === 'armor') {
             const oldDef = this.player.defense + (this.player.armor ? this.player.armor.value : 0);
             this.player.equipArmor(item);
             const newDef = this.player.defense + item.value;
             this.log(`Equipped ${item.name}! DEF: ${oldDef} -> ${newDef}`);
+            if (sound) sound.equip();
         }
     }
 
@@ -245,12 +262,14 @@ class Game {
             this.player.setPosition(startPos.x, startPos.y);
             this.log(`--- ${this.map.currentJob.name} ---`);
             this.log(this.map.currentJob.description);
+            if (sound) sound.newFloor();
         } else if (direction === 'up' && currentTile === GAME_CONFIG.TILES.STAIRS_UP && this.currentFloor > 1) {
             this.currentFloor--;
             this.generateFloor();
             const startPos = this.map.stairsDownPos || this.map.getPlayerStartPosition();
             this.player.setPosition(startPos.x, startPos.y);
             this.log(`Back to floor ${this.currentFloor}.`);
+            if (sound) sound.newFloor();
         }
 
         this.processTurn();
@@ -272,6 +291,12 @@ class Game {
             if (action && action.type === 'attack') {
                 const damage = this.player.takeDamage(entity.attack);
                 this.log(formatMessage(MESSAGES.PLAYER_HIT, { enemy: entity.name, damage: damage }));
+
+                if (sound) sound.playerHit();
+                if (effects) {
+                    effects.shakeMedium();
+                    effects.flashDamage();
+                }
 
                 if (!this.player.isAlive()) {
                     this.endGame('health');
@@ -311,9 +336,70 @@ class Game {
             this.triggerPositiveEvent();
         }
 
+        // Lucky break (very rare)
+        if (Math.random() < 0.002) {
+            this.checkLuckyBreak();
+        }
+
         // Visitation chance (once per month, on weekends)
         if (this.currentDay % 7 === 0 && !this.visitationActive && Math.random() < 0.3) {
             this.startVisitation();
+        }
+    }
+
+    checkLuckyBreak() {
+        if (!LIFE_EVENTS.luckyBreaks) return;
+
+        for (const luckyBreak of LIFE_EVENTS.luckyBreaks) {
+            if (Math.random() < luckyBreak.rarity) {
+                this.triggerLuckyBreak(luckyBreak);
+                break;
+            }
+        }
+    }
+
+    triggerLuckyBreak(event) {
+        this.log(`=== LUCKY BREAK! ===`);
+        this.log(event.text);
+        this.eventsExperienced.push(event.text);
+
+        if (sound) sound.victory();
+        if (effects) effects.shakeHeavy();
+
+        switch (event.effect) {
+            case 'exRemarried':
+                // Instant victory!
+                this.log('You are free!');
+                this.endGame('victory');
+                break;
+
+            case 'custodyChange':
+                // Also victory
+                this.log('Your child chose you!');
+                this.endGame('victory');
+                break;
+
+            case 'money':
+                const amount = Array.isArray(event.value)
+                    ? randomInt(event.value[0], event.value[1])
+                    : event.value;
+                this.player.addMoney(amount);
+                this.log(`+${formatMoney(amount)}`);
+                break;
+
+            case 'reduceAlimony':
+                this.alimonyAmount = Math.max(100, this.alimonyAmount - event.value);
+                this.log(`Alimony reduced to ${formatMoney(this.alimonyAmount)}`);
+                break;
+
+            case 'heal':
+                this.player.heal(event.value);
+                break;
+
+            case 'permanentBonus':
+                this.hasPermanentBonus = true;
+                this.log('Money earned increased permanently!');
+                break;
         }
     }
 
@@ -325,10 +411,14 @@ class Game {
         this.lastChildEvent = this.currentDay;
         this.eventsExperienced.push(event.text);
 
+        if (sound) sound.childEvent();
+
         if (event.effect === 'heal') {
             this.player.heal(event.value);
+            if (effects) effects.flashHeal();
         } else if (event.effect === 'stress') {
             this.player.takeDamage(event.value);
+            if (effects) effects.flashDamage();
         }
     }
 
@@ -343,6 +433,12 @@ class Game {
         this.lastEmergency = this.currentDay;
         this.eventsExperienced.push(`${event.text}${amount}`);
 
+        if (sound) sound.emergency();
+        if (effects) {
+            effects.shakeMedium();
+            effects.flashWarning();
+        }
+
         if (this.player.money >= amount) {
             this.player.spendMoney(amount);
             this.totalExpenses += amount;
@@ -352,6 +448,7 @@ class Game {
             const stressDamage = Math.floor(amount / 10);
             this.player.takeDamage(stressDamage);
             this.log(`Can't pay. The stress hurts. (-${stressDamage} HP)`);
+            if (effects) effects.flashDamage();
         }
     }
 
@@ -367,8 +464,12 @@ class Game {
                 ? randomInt(event.value[0], event.value[1])
                 : event.value;
             this.player.addMoney(amount);
+            if (sound) sound.money();
+            if (effects) effects.flashMoney();
         } else if (event.effect === 'heal') {
             this.player.heal(event.value);
+            if (sound) sound.heal();
+            if (effects) effects.flashHeal();
         }
     }
 
@@ -378,6 +479,9 @@ class Game {
         this.log('=== VISITATION DAY ===');
         this.log("Your child runs to hug you. You have 10 turns together.");
         this.player.heal(20);
+
+        if (sound) sound.visitation();
+        if (effects) effects.flashHeal();
     }
 
     endVisitation() {
@@ -386,6 +490,8 @@ class Game {
         this.log('"Bye daddy. I love you."');
         // Small emotional damage, but also motivation
         this.player.heal(10);
+
+        if (sound) sound.childEvent();
     }
 
     advanceDay() {
@@ -430,10 +536,19 @@ class Game {
             this.player.totalAlimonyPaid += this.alimonyAmount;
             this.log(MESSAGES.PAYMENT_SUCCESS);
             this.missedPayments = 0;
+
+            if (sound) sound.paymentSuccess();
+            if (effects) effects.flashHeal();
         } else {
             this.missedPayments++;
             this.log(MESSAGES.PAYMENT_FAILED);
             this.log(`WARNING: ${this.missedPayments}/${this.maxMissedPayments} missed payments!`);
+
+            if (sound) sound.paymentFailed();
+            if (effects) {
+                effects.shakeHeavy();
+                effects.setDangerGlow();
+            }
 
             if (this.missedPayments >= this.maxMissedPayments) {
                 this.endGame('jail');
@@ -483,14 +598,40 @@ class Game {
         switch (reason) {
             case 'health':
                 this.gameOverReason = MESSAGES.GAME_OVER_HEALTH;
+                if (sound) sound.gameOver();
                 break;
             case 'jail':
                 this.gameOverReason = MESSAGES.GAME_OVER_JAIL;
+                if (sound) sound.gameOver();
                 break;
             case 'victory':
                 this.victory = true;
                 this.gameOverReason = MESSAGES.CHILD_ADULT;
+                if (sound) sound.victory();
+                if (effects) effects.setVictoryGlow();
                 break;
+        }
+
+        // Save high score
+        if (typeof highScores !== 'undefined') {
+            highScores.addScore({
+                yearsWorked: this.currentYear - 1,
+                childAge: this.childAge,
+                totalEarned: this.player.totalMoneyEarned,
+                alimonyPaid: this.player.totalAlimonyPaid,
+                enemiesKilled: this.player.enemiesKilled,
+                floorsExplored: this.player.floorsExplored,
+                level: this.player.level,
+                victory: this.victory
+            });
+
+            highScores.updateStats({
+                yearsWorked: this.currentYear - 1,
+                totalEarned: this.player.totalMoneyEarned,
+                alimonyPaid: this.player.totalAlimonyPaid,
+                enemiesKilled: this.player.enemiesKilled,
+                victory: this.victory
+            });
         }
 
         this.showEndScreen();

@@ -226,6 +226,120 @@ body {
     animation: pulse-warning 1s infinite;
 }
 
+/* Floating text animation for effects */
+@keyframes floatUp {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+}
+
+.floating-text {
+    animation: floatUp 1s ease-out forwards;
+}
+
+/* Pulse effect for elements */
+.pulse-effect {
+    animation: pulse-warning 0.5s ease-in-out;
+}
+
+/* High Scores Screen */
+#scores-screen h2 {
+    color: #ffff00;
+    font-size: 36px;
+    text-shadow: 0 0 10px #ffff00;
+    margin-bottom: 20px;
+}
+
+.scores-container {
+    display: flex;
+    gap: 40px;
+    width: 100%;
+    max-width: 700px;
+    justify-content: center;
+}
+
+.scores-section {
+    flex: 1;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.scores-section h3 {
+    color: #00ffff;
+    margin-bottom: 15px;
+    font-size: 18px;
+    border-bottom: 1px solid #00ffff;
+    padding-bottom: 5px;
+}
+
+.score-entry {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 5px;
+    border-bottom: 1px dotted #333;
+    font-size: 14px;
+}
+
+.score-entry.victory {
+    color: #00ff00;
+}
+
+.score-entry.defeat {
+    color: #888;
+}
+
+.score-rank {
+    color: #ffff00;
+    width: 30px;
+}
+
+.score-years {
+    flex: 1;
+}
+
+.score-money {
+    color: #ffd700;
+}
+
+.lifetime-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 5px;
+    border-bottom: 1px dotted #333;
+}
+
+.lifetime-stat .stat-label {
+    color: #888;
+}
+
+.lifetime-stat .stat-value {
+    color: #ffff00;
+}
+
+/* Sound toggle in options */
+.sound-toggle {
+    cursor: pointer;
+    padding: 10px;
+    transition: color 0.2s;
+}
+
+.sound-toggle:hover {
+    color: #ffff00;
+}
+
+.sound-status {
+    color: #00ff00;
+}
+
+.sound-status.off {
+    color: #ff0000;
+}
+
 /* Game Over Screen */
 #gameover-title {
     color: #ff0000;

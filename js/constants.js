@@ -134,6 +134,51 @@ const JOBS = {
             'Someone\'s last day. Not yours.',
             '12 hours. No breaks.'
         ]
+    },
+    security: {
+        name: 'Security Guard',
+        description: 'Watching nothing. Waiting for something.',
+        enemies: ['trespasser', 'vandal', 'falseAlarm', 'boredom'],
+        items: ['flashlight', 'energyDrink', 'comfortableShoes', 'radioHandheld'],
+        moneyMultiplier: 1.1,
+        dangerLevel: 2,
+        flavorText: [
+            'Hour 6. Nothing has happened.',
+            'The cameras show empty hallways.',
+            'Was that a noise? Probably nothing.',
+            'Your flashlight flickers.',
+            'The night is long and cold.'
+        ]
+    },
+    delivery: {
+        name: 'Delivery Driver',
+        description: 'Every minute costs you money.',
+        enemies: ['angryCustomer', 'dogAttack', 'traffic', 'wrongAddress'],
+        items: ['gpsDevice', 'energyDrink', 'comfortableShoes', 'thermalBag'],
+        moneyMultiplier: 1.2,
+        dangerLevel: 2,
+        flavorText: [
+            '"Leave at door" but they\'re watching.',
+            'Apartment 4B. No apartment 4B exists.',
+            'The app says 3 minutes. It\'s been 10.',
+            'Another flight of stairs.',
+            'No tip. Of course.'
+        ]
+    },
+    callCenter: {
+        name: 'Call Center',
+        description: 'Your soul dies one call at a time.',
+        enemies: ['angryCallerC', 'holdMusic', 'scriptDeviation', 'supervisorCall'],
+        items: ['headset', 'coffeeStale', 'antiAnxiety', 'stressBall'],
+        moneyMultiplier: 1.0,
+        dangerLevel: 1,
+        flavorText: [
+            '"Your call is important to us."',
+            'The queue never ends.',
+            '"Let me transfer you." Click.',
+            'Reading the same script. Again.',
+            'Average handle time: Too long.'
+        ]
     }
 };
 
@@ -381,6 +426,122 @@ const ENEMIES = {
         description: 'Form 27-B/6 is missing.'
     },
 
+    // Security
+    trespasser: {
+        name: 'Trespasser',
+        char: 't',
+        health: 20,
+        attack: 10,
+        defense: 2,
+        expValue: 15,
+        moneyDrop: [5, 15],
+        description: 'They shouldn\'t be here. Neither should you.'
+    },
+    vandal: {
+        name: 'Vandal',
+        char: 'V',
+        health: 18,
+        attack: 12,
+        defense: 1,
+        expValue: 12,
+        moneyDrop: [8, 20],
+        description: 'Spray paint and bad intentions.'
+    },
+    falseAlarm: {
+        name: 'False Alarm',
+        char: '!',
+        health: 5,
+        attack: 0,
+        defense: 0,
+        expValue: 2,
+        moneyDrop: [0, 5],
+        description: 'Your heart races for nothing.'
+    },
+    boredom: {
+        name: 'Crushing Boredom',
+        char: 'z',
+        health: 30,
+        attack: 5,
+        defense: 5,
+        expValue: 10,
+        moneyDrop: [5, 10],
+        description: 'The real enemy is time itself.'
+    },
+
+    // Delivery
+    angryCustomer: {
+        name: 'Angry Customer',
+        char: 'A',
+        health: 15,
+        attack: 8,
+        defense: 1,
+        expValue: 10,
+        moneyDrop: [0, 10],
+        description: '"WHERE\'S MY ORDER?!"'
+    },
+    dogAttack: {
+        name: 'Aggressive Dog',
+        char: 'D',
+        health: 25,
+        attack: 15,
+        defense: 2,
+        expValue: 18,
+        moneyDrop: [0, 5],
+        description: 'Good boy? Bad boy.'
+    },
+    wrongAddress: {
+        name: 'Wrong Address',
+        char: '?',
+        health: 10,
+        attack: 5,
+        defense: 0,
+        expValue: 5,
+        moneyDrop: [2, 8],
+        description: 'This building doesn\'t exist.'
+    },
+
+    // Call Center
+    angryCallerC: {
+        name: 'Angry Caller',
+        char: 'A',
+        health: 15,
+        attack: 10,
+        defense: 0,
+        expValue: 8,
+        moneyDrop: [3, 10],
+        description: '"I\'VE BEEN ON HOLD FOR AN HOUR!"'
+    },
+    holdMusic: {
+        name: 'Hold Music',
+        char: '~',
+        health: 20,
+        attack: 3,
+        defense: 3,
+        expValue: 5,
+        moneyDrop: [0, 5],
+        description: 'The same 30 seconds. Forever.'
+    },
+    scriptDeviation: {
+        name: 'Script Deviation',
+        char: 'S',
+        health: 12,
+        attack: 8,
+        defense: 2,
+        expValue: 8,
+        moneyDrop: [5, 12],
+        description: 'You went off-script. That\'s a warning.'
+    },
+    supervisorCall: {
+        name: 'Supervisor Escalation',
+        char: 'E',
+        health: 30,
+        attack: 15,
+        defense: 5,
+        expValue: 20,
+        moneyDrop: [10, 25],
+        description: '"Let me get my supervisor." You ARE the supervisor.'
+    },
+
     // Universal enemies (can appear anywhere)
     debtCollector: {
         name: 'Debt Collector',
@@ -591,6 +752,55 @@ const ITEMS = {
         type: 'armor',
         value: [2, 5],
         description: 'Your feet thank you.'
+    },
+
+    // Security items
+    flashlight: {
+        name: 'Heavy Flashlight',
+        char: ')',
+        type: 'weapon',
+        value: [3, 7],
+        description: 'For seeing. And hitting.'
+    },
+    radioHandheld: {
+        name: 'Radio',
+        char: '[',
+        type: 'armor',
+        value: [2, 4],
+        description: 'Backup is just a call away. Usually.'
+    },
+
+    // Delivery items
+    gpsDevice: {
+        name: 'GPS Device',
+        char: '[',
+        type: 'armor',
+        value: [2, 5],
+        description: 'Recalculating... recalculating...'
+    },
+    thermalBag: {
+        name: 'Thermal Bag',
+        char: '[',
+        type: 'armor',
+        value: [3, 6],
+        description: 'Keeps food warm. Keeps you sane.'
+    },
+
+    // Call center items
+    headset: {
+        name: 'Quality Headset',
+        char: '[',
+        type: 'armor',
+        value: [2, 5],
+        description: 'Noise-canceling. If only it canceled everything.'
+    },
+    stressBall: {
+        name: 'Stress Ball',
+        char: '!',
+        type: 'consumable',
+        effect: 'heal',
+        value: 15,
+        description: 'Squeeze. Squeeze. Keep squeezing.'
     }
 };
 
@@ -631,6 +841,55 @@ const NPCS = {
         ],
         givesMoney: [0, 15],
         givesItem: null
+    },
+    yourMom: {
+        name: 'Your Mother',
+        char: '?',
+        dialogues: [
+            '"I brought you some food. You\'re too thin."',
+            '"She wasn\'t right for you anyway."',
+            '"When can I see my grandchild?"',
+            '"I\'m proud of you for trying."',
+            '"Here\'s a little something. Don\'t tell your father."'
+        ],
+        givesMoney: [20, 50],
+        givesItem: 'thermos'
+    },
+    loanShark: {
+        name: 'Shady Character',
+        char: '?',
+        dialogues: [
+            '"Need cash fast? I can help... for a price."',
+            '"No credit check. Just a handshake."',
+            '"You look desperate. I like desperate."'
+        ],
+        givesMoney: [50, 100],
+        givesItem: null,
+        isLoanShark: true
+    },
+    lawyer: {
+        name: 'Public Defender',
+        char: '?',
+        dialogues: [
+            '"I\'ve seen your case. Keep making those payments."',
+            '"The system isn\'t fair, but we work with what we have."',
+            '"Document everything. Trust me."',
+            '"You\'re doing better than most. Keep it up."'
+        ],
+        givesMoney: [0, 10],
+        givesItem: null
+    },
+    coworker: {
+        name: 'Friendly Coworker',
+        char: '?',
+        dialogues: [
+            '"Hey, I can cover part of your shift if you need."',
+            '"Heard about your situation. Here, grab lunch on me."',
+            '"We\'re all just trying to survive, right?"',
+            '"Don\'t let the boss see you talking to me."'
+        ],
+        givesMoney: [5, 25],
+        givesItem: 'energyDrink'
     }
 };
 
@@ -690,7 +949,49 @@ const LIFE_EVENTS = {
         16: "Your child can drive now. They drove to see you once.",
         17: "Senior year. Almost done. You almost made it.",
         18: "Your child is an adult now. You did it. Was it worth it?"
-    }
+    },
+    // Lucky breaks - rare events that can change everything
+    luckyBreaks: [
+        {
+            text: "Your ex got remarried. Alimony payments are terminated!",
+            effect: 'exRemarried',
+            rarity: 0.001 // Very rare
+        },
+        {
+            text: "You won $500 on a scratch-off ticket.",
+            effect: 'money',
+            value: 500,
+            rarity: 0.005
+        },
+        {
+            text: "Your ex agreed to reduce the alimony amount.",
+            effect: 'reduceAlimony',
+            value: 100,
+            rarity: 0.003
+        },
+        {
+            text: "Tax refund arrived! Extra cash this month.",
+            effect: 'money',
+            value: [200, 400],
+            rarity: 0.01
+        },
+        {
+            text: "Your child chose to live with you. Child support reversed!",
+            effect: 'custodyChange',
+            rarity: 0.0005 // Extremely rare
+        },
+        {
+            text: "An old debt was forgiven. One less worry.",
+            effect: 'heal',
+            value: 30,
+            rarity: 0.008
+        },
+        {
+            text: "Your boss gave you a surprise raise!",
+            effect: 'permanentBonus',
+            rarity: 0.005
+        }
+    ]
 };
 
 // Messages
