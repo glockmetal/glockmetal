@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Alimony Adventure</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -17,8 +20,10 @@
                 <div class="menu-item" data-action="credits">  CREDITS</div>
             </div>
             <div class="instructions">
-                <p>Use [W][A][S][D] or Arrow Keys to navigate</p>
-                <p>Press [ENTER] or [SPACE] to select</p>
+                <p class="desktop-hint">Use [W][A][S][D] or Arrow Keys to navigate</p>
+                <p class="desktop-hint">Press [ENTER] or [SPACE] to select</p>
+                <p class="mobile-hint">Swipe or use D-Pad to move</p>
+                <p class="mobile-hint">Tap to select</p>
             </div>
         </div>
 
@@ -61,10 +66,12 @@
                 <p class="condition">B: A Minor</p>
                 <p class="condition">C: Still under the custody of your ex-wife</p>
                 <br>
-                <p class="controls">[W/A/S/D] or [Arrows] - Move</p>
-                <p class="controls">[SPACE] - Interact / Attack</p>
-                <p class="controls">[I] - Inventory</p>
-                <p class="controls">[ESC] - Give Up (Quit)</p>
+                <p class="controls desktop-hint">[W/A/S/D] or [Arrows] - Move</p>
+                <p class="controls desktop-hint">[SPACE] - Interact / Attack</p>
+                <p class="controls desktop-hint">[ESC] - Give Up (Quit)</p>
+                <p class="controls mobile-hint">Swipe or D-Pad - Move</p>
+                <p class="controls mobile-hint">Tap STAIRS button - Use stairs</p>
+                <p class="controls mobile-hint">Tap QUIT button - Give Up</p>
             </div>
             <div class="menu-item selected" data-action="continue">> CONTINUE</div>
         </div>
@@ -85,6 +92,22 @@
             <div id="game-map"></div>
             <div id="game-log">
                 <p>Welcome to the dungeon. Find money to pay your alimony.</p>
+            </div>
+            <!-- Mobile Controls -->
+            <div id="mobile-controls">
+                <div id="dpad">
+                    <button class="dpad-btn" id="dpad-up" data-dir="up">▲</button>
+                    <div class="dpad-middle">
+                        <button class="dpad-btn" id="dpad-left" data-dir="left">◄</button>
+                        <button class="dpad-btn dpad-center" id="dpad-action">●</button>
+                        <button class="dpad-btn" id="dpad-right" data-dir="right">►</button>
+                    </div>
+                    <button class="dpad-btn" id="dpad-down" data-dir="down">▼</button>
+                </div>
+                <div id="action-buttons">
+                    <button class="action-btn" id="btn-stairs">STAIRS</button>
+                    <button class="action-btn" id="btn-quit">QUIT</button>
+                </div>
             </div>
         </div>
 

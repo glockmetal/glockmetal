@@ -273,3 +273,267 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #00cc00;
 }
+
+/* Mobile Controls */
+#mobile-controls {
+    display: none;
+    width: 100%;
+    padding: 10px;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #0a0a0a;
+    border-top: 1px solid #00ff00;
+}
+
+#dpad {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.dpad-middle {
+    display: flex;
+    gap: 5px;
+}
+
+.dpad-btn {
+    width: 50px;
+    height: 50px;
+    background-color: #1a1a1a;
+    border: 2px solid #00ff00;
+    color: #00ff00;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.dpad-btn:active {
+    background-color: #00ff00;
+    color: #0a0a0a;
+}
+
+.dpad-center {
+    background-color: #333;
+    border-color: #666;
+    color: #666;
+}
+
+#action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.action-btn {
+    padding: 15px 20px;
+    background-color: #1a1a1a;
+    border: 2px solid #00ff00;
+    color: #00ff00;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 8px;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.action-btn:active {
+    background-color: #00ff00;
+    color: #0a0a0a;
+}
+
+#btn-quit {
+    border-color: #ff0000;
+    color: #ff0000;
+}
+
+#btn-quit:active {
+    background-color: #ff0000;
+    color: #0a0a0a;
+}
+
+/* Mobile hint display control */
+.mobile-hint {
+    display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 850px) {
+    body {
+        padding: 0;
+        align-items: flex-start;
+    }
+
+    #game-container {
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        border: none;
+        box-shadow: none;
+    }
+
+    .game-title {
+        font-size: 28px;
+        margin-bottom: 30px;
+        letter-spacing: 2px;
+    }
+
+    .menu-item {
+        font-size: 20px;
+        padding: 10px 20px;
+    }
+
+    #game-header {
+        flex-direction: column;
+        gap: 5px;
+        padding: 5px 10px;
+    }
+
+    #player-stats, #child-status {
+        flex-wrap: wrap;
+        gap: 10px;
+        font-size: 12px;
+    }
+
+    #game-map {
+        font-size: 10px;
+        line-height: 1.1;
+        letter-spacing: 0px;
+    }
+
+    #game-map pre {
+        padding: 5px;
+    }
+
+    #game-log {
+        height: 50px;
+        font-size: 11px;
+        padding: 5px;
+    }
+
+    .instructions-content {
+        font-size: 14px;
+    }
+
+    .instructions-content p {
+        margin: 3px 0;
+    }
+
+    .options-content, .credits-content {
+        font-size: 14px;
+    }
+}
+
+/* Touch device detection */
+@media (hover: none) and (pointer: coarse) {
+    #mobile-controls {
+        display: flex;
+    }
+
+    .desktop-hint {
+        display: none;
+    }
+
+    .mobile-hint {
+        display: block;
+    }
+
+    .menu-item {
+        padding: 15px 25px;
+        font-size: 22px;
+    }
+
+    #game-screen {
+        padding: 5px;
+    }
+
+    #game-map {
+        font-size: 9px;
+        line-height: 1.0;
+    }
+
+    #game-log {
+        height: 40px;
+    }
+}
+
+/* Small phones */
+@media (max-width: 400px) {
+    .game-title {
+        font-size: 22px;
+        margin-bottom: 20px;
+    }
+
+    .dpad-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+    }
+
+    .action-btn {
+        padding: 12px 15px;
+        font-size: 12px;
+    }
+
+    #game-map {
+        font-size: 7px;
+    }
+
+    #player-stats, #child-status {
+        font-size: 10px;
+        gap: 5px;
+    }
+}
+
+/* Landscape mode on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    #game-header {
+        flex-direction: row;
+        padding: 3px 10px;
+    }
+
+    #game-log {
+        height: 30px;
+        font-size: 10px;
+    }
+
+    #mobile-controls {
+        padding: 5px;
+    }
+
+    .dpad-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .action-btn {
+        padding: 10px 15px;
+        font-size: 11px;
+    }
+
+    .game-title {
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+
+    .menu-item {
+        font-size: 18px;
+        padding: 8px 15px;
+    }
+
+    .instructions-content, .options-content, .credits-content {
+        font-size: 12px;
+        margin: 15px 0;
+        line-height: 1.4;
+    }
+}
