@@ -74,22 +74,49 @@ function findPath(startX, startY, endX, endY, map) {
 // Color helpers for rendering
 function getTileColor(char) {
     const colorMap = {
-        '#': '#666666',  // Wall
-        '.': '#333333',  // Floor
-        '@': '#00ff00',  // Player
+        // Terrain
+        '#': '#444444',  // Wall
+        '.': '#222222',  // Floor
         '>': '#00ffff',  // Stairs down
         '<': '#00ffff',  // Stairs up
         '+': '#8b4513',  // Closed door
         '/': '#8b4513',  // Open door
-        '$': '#ffd700',  // Money
-        '!': '#ff00ff',  // Potion
-        ')': '#ffffff',  // Weapon
-        '[': '#4169e1',  // Armor
-        'r': '#ff6666',  // Rat
-        'D': '#ff0000',  // Debt collector
-        'L': '#ff4444',  // Lawyer
-        'B': '#ff0000',  // Boss
-        'X': '#ff00ff'   // Ex-wife
+
+        // Player
+        '@': '#00ff00',  // Player (bright green)
+
+        // Items
+        '$': '#ffd700',  // Money (gold)
+        '!': '#ff00ff',  // Consumable (magenta)
+        ')': '#ffffff',  // Weapon (white)
+        '[': '#4169e1',  // Armor (blue)
+
+        // NPCs
+        '?': '#00ff88',  // Friendly NPC (teal)
+        'c': '#ffaaff',  // Child (pink)
+
+        // Enemies - vary by type
+        'C': '#ff6666',  // Customer
+        'M': '#ff4444',  // Manager
+        'H': '#ff8800',  // Health Inspector
+        'F': '#ff0000',  // Forklift / Foreman
+        'S': '#ff5555',  // Supervisor
+        'B': '#ff3333',  // Boss / Boxes / Bureaucracy
+        'r': '#aa6666',  // Rat
+        'D': '#ff2222',  // Drunk Passenger / Debt Collector
+        '1': '#ffaa00',  // 1-Star Reviewer
+        'J': '#ff0000',  // Carjacker
+        'T': '#888888',  // Traffic
+        'd': '#aa4444',  // Falling Debris
+        '=': '#666666',  // Scaffolding
+        '*': '#ffff00',  // Heatstroke
+        'I': '#6666ff',  // IT Guy
+        'P': '#ff88ff',  // Passive-Aggressive
+        'L': '#ff4488',  // Lawyer / Layoff
+        '~': '#44ff44',  // Biohazard
+        'G': '#8888ff',  // Grieving Family
+        'N': '#ffffff',  // Nurse
+        'X': '#ff00ff'   // Ex-wife (boss)
     };
     return colorMap[char] || '#ffffff';
 }

@@ -198,6 +198,34 @@ body {
     color: #00ff00;
 }
 
+/* Event highlighting in log */
+#game-log p:last-child:has-text('---') {
+    color: #00ffff;
+}
+
+/* Stats display */
+.stat-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px dotted #333;
+}
+
+.stat-value {
+    color: #ffff00;
+    font-weight: bold;
+}
+
+/* Pulsing effect for warnings */
+@keyframes pulse-warning {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.warning-pulse {
+    animation: pulse-warning 1s infinite;
+}
+
 /* Game Over Screen */
 #gameover-title {
     color: #ff0000;
