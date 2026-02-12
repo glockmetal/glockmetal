@@ -18,16 +18,32 @@ class Game {
         this.missedPayments = 0;
         this.maxMissedPayments = 3;
 
+        // Living expenses tracking
+        this.rentPaid = false;
+
         // Game state
         this.isRunning = false;
-        this.isPaused = false; // Always false - game cannot be paused
+        this.isPaused = false;
         this.gameOver = false;
         this.victory = false;
         this.gameOverReason = '';
 
-        // Turn counter (for time progression)
+        // Turn counter
         this.turnCount = 0;
         this.turnsPerDay = 50;
+
+        // Events tracking
+        this.lastChildEvent = 0;
+        this.lastEmergency = 0;
+        this.visitationActive = false;
+        this.visitationTurns = 0;
+
+        // Stats
+        this.totalExpenses = 0;
+        this.eventsExperienced = [];
+
+        // Bonus tracking
+        this.hasPermanentBonus = false;
     }
 
     init() {
@@ -39,7 +55,8 @@ class Game {
         this.player.setPosition(startPos.x, startPos.y);
 
         this.isRunning = true;
-        this.log('You enter the workforce dungeon.');
+        this.log(`You clock in at the ${this.map.currentJob.name}.`);
+        this.log(this.map.currentJob.description);
         this.log(`Alimony due in ${this.daysUntilPayment} days: ${formatMoney(this.alimonyAmount)}`);
     }
 
@@ -69,13 +86,23 @@ class Game {
 
     updateUI() {
         // Player stats
-        document.getElementById('health').textContent = `HP: ${this.player.health}/${this.player.maxHealth}`;
+        const healthEl = document.getElementById('health');
+        const healthPercent = this.player.health / this.player.maxHealth;
+        healthEl.textContent = `HP: ${this.player.health}/${this.player.maxHealth}`;
+        healthEl.style.color = healthPercent < 0.3 ? '#ff0000' : healthPercent < 0.6 ? '#ffaa00' : '#00ff00';
+
         document.getElementById('money').textContent = `$: ${this.player.money}`;
-        document.getElementById('alimony-due').textContent = `ALIMONY DUE: ${formatMoney(this.alimonyAmount)}`;
+
+        const alimonyEl = document.getElementById('alimony-due');
+        alimonyEl.textContent = `ALIMONY: ${formatMoney(this.alimonyAmount)}`;
+        alimonyEl.style.color = this.player.money >= this.alimonyAmount ? '#00ff00' : '#ff00ff';
 
         // Child/time status
-        document.getElementById('child-age').textContent = `Child Age: ${this.childAge}`;
-        document.getElementById('days-until-payment').textContent = `Days Until Payment: ${this.daysUntilPayment}`;
+        document.getElementById('child-age').textContent = `Child: ${this.childAge}`;
+
+        const daysEl = document.getElementById('days-until-payment');
+        daysEl.textContent = `Due in: ${this.daysUntilPayment}d`;
+        daysEl.style.color = this.daysUntilPayment <= 5 ? '#ff0000' : this.daysUntilPayment <= 10 ? '#ff8800' : '#00ffff';
 
         // Render map
         const mapElement = document.getElementById('game-map');
@@ -86,6 +113,17 @@ class Game {
 
     processPlayerAction(dx, dy) {
         if (!this.isRunning || this.gameOver) return;
+
+        const newX = this.player.x + dx;
+        const newY = this.player.y + dy;
+
+        // Check for NPC interaction
+        const npc = this.map.getNPCAt(newX, newY);
+        if (npc) {
+            this.handleNPCInteraction(npc);
+            this.processTurn();
+            return;
+        }
 
         const result = this.player.move(dx, dy, this.map);
 
@@ -99,29 +137,70 @@ class Game {
                 break;
 
             case 'stairs_down':
-                this.log('Press SPACE to descend the stairs.');
+                this.log('Press SPACE to go to next shift.');
                 break;
 
             case 'stairs_up':
-                this.log('Press SPACE to ascend the stairs.');
+                this.log('Press SPACE to go back.');
                 break;
 
             case 'move':
-                // Normal movement, process turn
+                // Random flavor text
+                if (Math.random() < 0.05) {
+                    this.log(this.map.getJobFlavorText());
+                }
                 break;
 
             case 'blocked':
-                // No turn passes for blocked movement
                 return;
         }
 
         this.processTurn();
     }
 
+    handleNPCInteraction(npc) {
+        if (npc.spoken) {
+            this.log(`${npc.name} nods at you silently.`);
+            return;
+        }
+
+        if (sound) sound.npcTalk();
+
+        // Get a random dialogue
+        const dialogue = randomChoice(npc.dialogues);
+        this.log(`${npc.name}: ${dialogue}`);
+
+        // Give money if applicable
+        if (npc.givesMoney && npc.givesMoney[1] > 0) {
+            const amount = randomInt(npc.givesMoney[0], npc.givesMoney[1]);
+            if (amount > 0) {
+                this.player.addMoney(amount);
+                this.log(`They gave you ${formatMoney(amount)}.`);
+            }
+        }
+
+        // Give item if applicable
+        if (npc.givesItem) {
+            const itemData = ITEMS[npc.givesItem];
+            if (itemData) {
+                this.log(`They gave you a ${itemData.name}.`);
+                // Apply item effect immediately
+                if (itemData.type === 'consumable' && itemData.effect === 'heal') {
+                    this.player.heal(itemData.value);
+                    this.log(`You feel a bit better. (+${itemData.value} HP)`);
+                }
+            }
+        }
+
+        npc.spoken = true;
+    }
+
     handleCombat(enemy) {
-        // Player attacks
         const playerDamage = this.player.attack(enemy);
         this.log(formatMessage(MESSAGES.ENEMY_HIT, { enemy: enemy.name, damage: playerDamage }));
+
+        if (sound) sound.enemyHit();
+        if (effects) effects.shakeLight();
 
         if (!enemy.isAlive()) {
             const moneyDrop = enemy.getMoneyDrop();
@@ -131,9 +210,12 @@ class Game {
             const leveledUp = this.player.addExp(enemy.expValue);
 
             this.log(formatMessage(MESSAGES.ENEMY_KILLED, { enemy: enemy.name, money: moneyDrop }));
+            if (sound) sound.enemyKilled();
+            if (effects) effects.flashMoney();
 
             if (leveledUp) {
                 this.log(formatMessage(MESSAGES.LEVEL_UP, { level: this.player.level }));
+                if (sound) sound.levelUp();
             }
 
             this.map.removeEntity(enemy);
@@ -145,22 +227,28 @@ class Game {
 
         if (item.type === 'money') {
             this.player.addMoney(item.value);
-            this.log(`Picked up ${formatMoney(item.value)}!`);
+            this.log(`${item.name}: +${formatMoney(item.value)}`);
+            if (sound) sound.money();
+            if (effects) effects.flashMoney();
         } else if (item.type === 'consumable') {
             if (item.effect === 'heal') {
                 this.player.heal(item.value);
-                this.log(`Used ${item.name}. Healed ${item.value} HP.`);
+                this.log(`${item.name}: +${item.value} HP`);
+                if (sound) sound.heal();
+                if (effects) effects.flashHeal();
             }
         } else if (item.type === 'weapon') {
             const oldAttack = this.player.getAttackPower();
             this.player.equipWeapon(item);
             const newAttack = this.player.getAttackPower();
-            this.log(`Equipped ${item.name}! Attack: ${oldAttack} -> ${newAttack}`);
+            this.log(`Equipped ${item.name}! ATK: ${oldAttack} -> ${newAttack}`);
+            if (sound) sound.equip();
         } else if (item.type === 'armor') {
             const oldDef = this.player.defense + (this.player.armor ? this.player.armor.value : 0);
             this.player.equipArmor(item);
             const newDef = this.player.defense + item.value;
-            this.log(`Equipped ${item.name}! Defense: ${oldDef} -> ${newDef}`);
+            this.log(`Equipped ${item.name}! DEF: ${oldDef} -> ${newDef}`);
+            if (sound) sound.equip();
         }
     }
 
@@ -172,19 +260,30 @@ class Game {
             this.generateFloor();
             const startPos = this.map.stairsUpPos || this.map.getPlayerStartPosition();
             this.player.setPosition(startPos.x, startPos.y);
-            this.log(formatMessage(MESSAGES.FLOOR_DESCEND, { floor: this.currentFloor }));
+            this.log(`--- ${this.map.currentJob.name} ---`);
+            this.log(this.map.currentJob.description);
+            if (sound) sound.newFloor();
         } else if (direction === 'up' && currentTile === GAME_CONFIG.TILES.STAIRS_UP && this.currentFloor > 1) {
             this.currentFloor--;
             this.generateFloor();
             const startPos = this.map.stairsDownPos || this.map.getPlayerStartPosition();
             this.player.setPosition(startPos.x, startPos.y);
-            this.log(`You ascend to floor ${this.currentFloor}.`);
+            this.log(`Back to floor ${this.currentFloor}.`);
+            if (sound) sound.newFloor();
         }
 
         this.processTurn();
     }
 
     processTurn() {
+        // Process visitation
+        if (this.visitationActive) {
+            this.visitationTurns--;
+            if (this.visitationTurns <= 0) {
+                this.endVisitation();
+            }
+        }
+
         // Process enemy turns
         for (const entity of this.map.entities) {
             const action = entity.act(this.map, this.player.x, this.player.y);
@@ -192,6 +291,12 @@ class Game {
             if (action && action.type === 'attack') {
                 const damage = this.player.takeDamage(entity.attack);
                 this.log(formatMessage(MESSAGES.PLAYER_HIT, { enemy: entity.name, damage: damage }));
+
+                if (sound) sound.playerHit();
+                if (effects) {
+                    effects.shakeMedium();
+                    effects.flashDamage();
+                }
 
                 if (!this.player.isAlive()) {
                     this.endGame('health');
@@ -207,41 +312,243 @@ class Game {
             this.advanceDay();
         }
 
+        // Random events
+        this.checkRandomEvents();
+
         this.updateUI();
+    }
+
+    checkRandomEvents() {
+        // Child event (every ~100 turns, if not too recent)
+        if (this.turnCount % 100 === 0 && this.currentDay - this.lastChildEvent > 3) {
+            if (Math.random() < 0.4) {
+                this.triggerChildEvent();
+            }
+        }
+
+        // Emergency expense (rare)
+        if (Math.random() < 0.005 && this.currentDay - this.lastEmergency > 10) {
+            this.triggerEmergency();
+        }
+
+        // Positive event (rare)
+        if (Math.random() < 0.01) {
+            this.triggerPositiveEvent();
+        }
+
+        // Lucky break (very rare)
+        if (Math.random() < 0.002) {
+            this.checkLuckyBreak();
+        }
+
+        // Visitation chance (once per month, on weekends)
+        if (this.currentDay % 7 === 0 && !this.visitationActive && Math.random() < 0.3) {
+            this.startVisitation();
+        }
+    }
+
+    checkLuckyBreak() {
+        if (!LIFE_EVENTS.luckyBreaks) return;
+
+        for (const luckyBreak of LIFE_EVENTS.luckyBreaks) {
+            if (Math.random() < luckyBreak.rarity) {
+                this.triggerLuckyBreak(luckyBreak);
+                break;
+            }
+        }
+    }
+
+    triggerLuckyBreak(event) {
+        this.log(`=== LUCKY BREAK! ===`);
+        this.log(event.text);
+        this.eventsExperienced.push(event.text);
+
+        if (sound) sound.victory();
+        if (effects) effects.shakeHeavy();
+
+        switch (event.effect) {
+            case 'exRemarried':
+                // Instant victory!
+                this.log('You are free!');
+                this.endGame('victory');
+                break;
+
+            case 'custodyChange':
+                // Also victory
+                this.log('Your child chose you!');
+                this.endGame('victory');
+                break;
+
+            case 'money':
+                const amount = Array.isArray(event.value)
+                    ? randomInt(event.value[0], event.value[1])
+                    : event.value;
+                this.player.addMoney(amount);
+                this.log(`+${formatMoney(amount)}`);
+                break;
+
+            case 'reduceAlimony':
+                this.alimonyAmount = Math.max(100, this.alimonyAmount - event.value);
+                this.log(`Alimony reduced to ${formatMoney(this.alimonyAmount)}`);
+                break;
+
+            case 'heal':
+                this.player.heal(event.value);
+                break;
+
+            case 'permanentBonus':
+                this.hasPermanentBonus = true;
+                this.log('Money earned increased permanently!');
+                break;
+        }
+    }
+
+    triggerChildEvent() {
+        const events = LIFE_EVENTS.childEvents;
+        const event = randomChoice(events);
+
+        this.log(`--- ${event.text} ---`);
+        this.lastChildEvent = this.currentDay;
+        this.eventsExperienced.push(event.text);
+
+        if (sound) sound.childEvent();
+
+        if (event.effect === 'heal') {
+            this.player.heal(event.value);
+            if (effects) effects.flashHeal();
+        } else if (event.effect === 'stress') {
+            this.player.takeDamage(event.value);
+            if (effects) effects.flashDamage();
+        }
+    }
+
+    triggerEmergency() {
+        const emergencies = LIFE_EVENTS.emergencies;
+        const event = randomChoice(emergencies);
+        const amount = Array.isArray(event.value)
+            ? randomInt(event.value[0], event.value[1])
+            : event.value;
+
+        this.log(`!!! ${event.text}${amount} !!!`);
+        this.lastEmergency = this.currentDay;
+        this.eventsExperienced.push(`${event.text}${amount}`);
+
+        if (sound) sound.emergency();
+        if (effects) {
+            effects.shakeMedium();
+            effects.flashWarning();
+        }
+
+        if (this.player.money >= amount) {
+            this.player.spendMoney(amount);
+            this.totalExpenses += amount;
+            this.log(`You paid it. ${formatMoney(this.player.money)} remaining.`);
+        } else {
+            // Can't pay - take stress damage
+            const stressDamage = Math.floor(amount / 10);
+            this.player.takeDamage(stressDamage);
+            this.log(`Can't pay. The stress hurts. (-${stressDamage} HP)`);
+            if (effects) effects.flashDamage();
+        }
+    }
+
+    triggerPositiveEvent() {
+        const events = LIFE_EVENTS.positiveEvents;
+        const event = randomChoice(events);
+
+        this.log(`+ ${event.text} +`);
+        this.eventsExperienced.push(event.text);
+
+        if (event.effect === 'money') {
+            const amount = Array.isArray(event.value)
+                ? randomInt(event.value[0], event.value[1])
+                : event.value;
+            this.player.addMoney(amount);
+            if (sound) sound.money();
+            if (effects) effects.flashMoney();
+        } else if (event.effect === 'heal') {
+            this.player.heal(event.value);
+            if (sound) sound.heal();
+            if (effects) effects.flashHeal();
+        }
+    }
+
+    startVisitation() {
+        this.visitationActive = true;
+        this.visitationTurns = 10;
+        this.log('=== VISITATION DAY ===');
+        this.log("Your child runs to hug you. You have 10 turns together.");
+        this.player.heal(20);
+
+        if (sound) sound.visitation();
+        if (effects) effects.flashHeal();
+    }
+
+    endVisitation() {
+        this.visitationActive = false;
+        this.log("=== Time's up. They have to go back. ===");
+        this.log('"Bye daddy. I love you."');
+        // Small emotional damage, but also motivation
+        this.player.heal(10);
+
+        if (sound) sound.childEvent();
     }
 
     advanceDay() {
         this.currentDay++;
         this.daysUntilPayment--;
 
-        // Check for payment due
-        if (this.daysUntilPayment <= 0) {
-            this.processAlimonyPayment();
+        // Daily grind message (occasionally)
+        if (Math.random() < 0.2) {
+            this.log(randomChoice(MESSAGES.DAILY_GRIND));
         }
 
-        // Random daily events
-        if (Math.random() < 0.1) {
-            const events = [
-                'Your child sent you a drawing. It keeps you going.',
-                'You remember why you\'re doing this.',
-                'Another day, another dollar.',
-                'The grind never stops.',
-                'You think about better times.'
-            ];
-            this.log(randomChoice(events));
+        // Check for payment due
+        if (this.daysUntilPayment <= 0) {
+            this.processMonthEnd();
+        }
+
+        // Low payment warning
+        if (this.daysUntilPayment === 7 && this.player.money < this.alimonyAmount) {
+            this.log('!!! One week until payment. You\'re short. !!!');
+        } else if (this.daysUntilPayment === 3 && this.player.money < this.alimonyAmount) {
+            this.log('!!! THREE DAYS. You need money. NOW. !!!');
         }
     }
 
-    processAlimonyPayment() {
+    processMonthEnd() {
+        this.log('=== END OF MONTH ===');
+
+        // Pay rent first
+        const rentAmount = GAME_CONFIG.RENT;
+        if (this.player.money >= rentAmount) {
+            this.player.spendMoney(rentAmount);
+            this.totalExpenses += rentAmount;
+            this.log(`Rent paid: ${formatMoney(rentAmount)}`);
+        } else {
+            this.log("Couldn't pay rent. Sleeping in your car.");
+            this.player.takeDamage(10);
+        }
+
+        // Then alimony
         if (this.player.money >= this.alimonyAmount) {
             this.player.spendMoney(this.alimonyAmount);
             this.player.totalAlimonyPaid += this.alimonyAmount;
             this.log(MESSAGES.PAYMENT_SUCCESS);
             this.missedPayments = 0;
+
+            if (sound) sound.paymentSuccess();
+            if (effects) effects.flashHeal();
         } else {
             this.missedPayments++;
             this.log(MESSAGES.PAYMENT_FAILED);
             this.log(`WARNING: ${this.missedPayments}/${this.maxMissedPayments} missed payments!`);
+
+            if (sound) sound.paymentFailed();
+            if (effects) {
+                effects.shakeHeavy();
+                effects.setDangerGlow();
+            }
 
             if (this.missedPayments >= this.maxMissedPayments) {
                 this.endGame('jail');
@@ -257,6 +564,8 @@ class Game {
             this.currentMonth = 1;
             this.advanceYear();
         }
+
+        this.log(`${formatMoney(this.player.money)} remaining.`);
     }
 
     advanceYear() {
@@ -266,7 +575,15 @@ class Game {
         // Increase alimony each year
         this.alimonyAmount += GAME_CONFIG.ALIMONY_INCREASE_PER_YEAR;
 
-        this.log(formatMessage(MESSAGES.CHILD_BIRTHDAY, { age: this.childAge }));
+        // Check for milestone
+        const milestone = LIFE_EVENTS.milestones[this.childAge];
+        if (milestone) {
+            this.log(`=== YEAR ${this.currentYear} ===`);
+            this.log(milestone);
+            this.eventsExperienced.push(milestone);
+        } else {
+            this.log(formatMessage(MESSAGES.CHILD_BIRTHDAY, { age: this.childAge }));
+        }
 
         // Check for victory
         if (this.childAge >= GAME_CONFIG.CHILD_ADULT_AGE) {
@@ -281,43 +598,66 @@ class Game {
         switch (reason) {
             case 'health':
                 this.gameOverReason = MESSAGES.GAME_OVER_HEALTH;
+                if (sound) sound.gameOver();
                 break;
             case 'jail':
                 this.gameOverReason = MESSAGES.GAME_OVER_JAIL;
+                if (sound) sound.gameOver();
                 break;
             case 'victory':
                 this.victory = true;
                 this.gameOverReason = MESSAGES.CHILD_ADULT;
+                if (sound) sound.victory();
+                if (effects) effects.setVictoryGlow();
                 break;
+        }
+
+        // Save high score
+        if (typeof highScores !== 'undefined') {
+            highScores.addScore({
+                yearsWorked: this.currentYear - 1,
+                childAge: this.childAge,
+                totalEarned: this.player.totalMoneyEarned,
+                alimonyPaid: this.player.totalAlimonyPaid,
+                enemiesKilled: this.player.enemiesKilled,
+                floorsExplored: this.player.floorsExplored,
+                level: this.player.level,
+                victory: this.victory
+            });
+
+            highScores.updateStats({
+                yearsWorked: this.currentYear - 1,
+                totalEarned: this.player.totalMoneyEarned,
+                alimonyPaid: this.player.totalAlimonyPaid,
+                enemiesKilled: this.player.enemiesKilled,
+                victory: this.victory
+            });
         }
 
         this.showEndScreen();
     }
 
     showEndScreen() {
+        const yearsWorked = this.currentYear - 1;
         const stats = `
-            Years Survived: ${this.currentYear - 1}
-            Final Child Age: ${this.childAge}
-            Total Money Earned: ${formatMoney(this.player.totalMoneyEarned)}
-            Total Alimony Paid: ${formatMoney(this.player.totalAlimonyPaid)}
-            Enemies Defeated: ${this.player.enemiesKilled}
-            Floors Explored: ${this.player.floorsExplored}
-            Final Level: ${this.player.level}
+            <div class="stat-line">Years Survived: <span class="stat-value">${yearsWorked}</span></div>
+            <div class="stat-line">Child's Final Age: <span class="stat-value">${this.childAge}</span></div>
+            <div class="stat-line">Total Earned: <span class="stat-value">${formatMoney(this.player.totalMoneyEarned)}</span></div>
+            <div class="stat-line">Total Alimony Paid: <span class="stat-value">${formatMoney(this.player.totalAlimonyPaid)}</span></div>
+            <div class="stat-line">Other Expenses: <span class="stat-value">${formatMoney(this.totalExpenses)}</span></div>
+            <div class="stat-line">Obstacles Overcome: <span class="stat-value">${this.player.enemiesKilled}</span></div>
+            <div class="stat-line">Shifts Worked: <span class="stat-value">${this.player.floorsExplored}</span></div>
+            <div class="stat-line">Final Level: <span class="stat-value">${this.player.level}</span></div>
         `;
 
         if (this.victory) {
-            document.getElementById('victory-stats').innerHTML = stats.replace(/\n/g, '<br>');
-            this.showScreen('victory-screen');
+            document.getElementById('victory-stats').innerHTML = stats;
+            showScreen('victory-screen');
         } else {
             document.getElementById('gameover-reason').innerHTML = this.gameOverReason;
-            document.getElementById('final-stats').innerHTML = stats.replace(/\n/g, '<br>');
-            this.showScreen('gameover-screen');
+            document.getElementById('final-stats').innerHTML = stats;
+            showScreen('gameover-screen');
         }
-    }
-
-    showScreen(screenId) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(screenId).classList.add('active');
     }
 
     restart() {
@@ -334,9 +674,16 @@ class Game {
         this.gameOver = false;
         this.victory = false;
         this.gameOverReason = '';
+        this.lastChildEvent = 0;
+        this.lastEmergency = 0;
+        this.visitationActive = false;
+        this.visitationTurns = 0;
+        this.totalExpenses = 0;
+        this.eventsExperienced = [];
+        this.rentPaid = false;
 
         this.init();
-        this.showScreen('game-screen');
+        showScreen('game-screen');
         this.updateUI();
     }
 }

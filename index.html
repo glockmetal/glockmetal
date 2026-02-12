@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Alimony Adventure</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -13,13 +16,27 @@
             <h1 class="game-title">ALIMONY ADVENTURE</h1>
             <div id="menu">
                 <div class="menu-item selected" data-action="start">> START GAME</div>
+                <div class="menu-item" data-action="scores">  HIGH SCORES</div>
                 <div class="menu-item" data-action="options">  OPTIONS</div>
                 <div class="menu-item" data-action="credits">  CREDITS</div>
             </div>
             <div class="instructions">
-                <p>Use [W][A][S][D] or Arrow Keys to navigate</p>
-                <p>Press [ENTER] or [SPACE] to select</p>
+                <p class="desktop-hint">Use [W][A][S][D] or Arrow Keys to navigate</p>
+                <p class="desktop-hint">Press [ENTER] or [SPACE] to select</p>
+                <p class="mobile-hint">Swipe or use D-Pad to move</p>
+                <p class="mobile-hint">Tap to select</p>
             </div>
+        </div>
+
+        <!-- High Scores Screen -->
+        <div id="scores-screen" class="screen">
+            <h2>HIGH SCORES</h2>
+            <div id="high-scores-content" class="scores-content">
+                <p class="no-scores">No high scores yet. Get to work!</p>
+            </div>
+            <h3>LIFETIME STATS</h3>
+            <div id="lifetime-stats-content" class="stats-content"></div>
+            <div class="menu-item selected" data-action="back">> BACK</div>
         </div>
 
         <!-- Options Screen -->
@@ -28,20 +45,28 @@
             <div class="options-content">
                 <p class="option-warning">This game cannot be saved.</p>
                 <p class="option-warning">This game cannot be paused.</p>
-                <p class="option-info">Sound: ON (Press [M] to toggle)</p>
+                <div class="option-toggle">
+                    <span>Sound:</span>
+                    <span id="sound-status" class="option-value">ON</span>
+                </div>
+                <p class="option-hint">[M] to toggle sound</p>
             </div>
-            <div class="menu-item selected" data-action="back">> BACK</div>
+            <div class="menu-item selected" data-action="toggleSound">> TOGGLE SOUND</div>
+            <div class="menu-item" data-action="back">  BACK</div>
         </div>
 
         <!-- Credits Screen -->
         <div id="credits-screen" class="screen">
             <h2>CREDITS</h2>
             <div class="credits-content">
-                <p>A game about responsibility</p>
-                <p>and the price of freedom.</p>
+                <p>A game about responsibility,</p>
+                <p>sacrifice, and the price of freedom.</p>
                 <br>
-                <p>Created with desperation and</p>
-                <p>a court-ordered sense of duty.</p>
+                <p>For every parent who works</p>
+                <p>two jobs just to see their kid</p>
+                <p>every other weekend.</p>
+                <br>
+                <p class="story">Keep going.</p>
             </div>
             <div class="menu-item selected" data-action="back">> BACK</div>
         </div>
@@ -61,10 +86,12 @@
                 <p class="condition">B: A Minor</p>
                 <p class="condition">C: Still under the custody of your ex-wife</p>
                 <br>
-                <p class="controls">[W/A/S/D] or [Arrows] - Move</p>
-                <p class="controls">[SPACE] - Interact / Attack</p>
-                <p class="controls">[I] - Inventory</p>
-                <p class="controls">[ESC] - Give Up (Quit)</p>
+                <p class="controls desktop-hint">[W/A/S/D] or [Arrows] - Move</p>
+                <p class="controls desktop-hint">[SPACE] - Interact / Attack</p>
+                <p class="controls desktop-hint">[ESC] - Give Up (Quit)</p>
+                <p class="controls mobile-hint">Swipe or D-Pad - Move</p>
+                <p class="controls mobile-hint">Tap STAIRS button - Use stairs</p>
+                <p class="controls mobile-hint">Tap QUIT button - Give Up</p>
             </div>
             <div class="menu-item selected" data-action="continue">> CONTINUE</div>
         </div>
@@ -74,17 +101,33 @@
             <div id="game-header">
                 <div id="player-stats">
                     <span id="health">HP: 100/100</span>
-                    <span id="money">$: 0</span>
-                    <span id="alimony-due">ALIMONY DUE: $500</span>
+                    <span id="money">$: 50</span>
+                    <span id="alimony-due">ALIMONY: $500</span>
                 </div>
                 <div id="child-status">
-                    <span id="child-age">Child Age: 5</span>
-                    <span id="days-until-payment">Days Until Payment: 30</span>
+                    <span id="child-age">Child: 5</span>
+                    <span id="days-until-payment">Due in: 30d</span>
                 </div>
             </div>
             <div id="game-map"></div>
             <div id="game-log">
                 <p>Welcome to the dungeon. Find money to pay your alimony.</p>
+            </div>
+            <!-- Mobile Controls -->
+            <div id="mobile-controls">
+                <div id="dpad">
+                    <button class="dpad-btn" id="dpad-up" data-dir="up">▲</button>
+                    <div class="dpad-middle">
+                        <button class="dpad-btn" id="dpad-left" data-dir="left">◄</button>
+                        <button class="dpad-btn dpad-center" id="dpad-action">●</button>
+                        <button class="dpad-btn" id="dpad-right" data-dir="right">►</button>
+                    </div>
+                    <button class="dpad-btn" id="dpad-down" data-dir="down">▼</button>
+                </div>
+                <div id="action-buttons">
+                    <button class="action-btn" id="btn-stairs">STAIRS</button>
+                    <button class="action-btn" id="btn-quit">QUIT</button>
+                </div>
             </div>
         </div>
 
@@ -99,11 +142,16 @@
 
         <!-- Victory Screen -->
         <div id="victory-screen" class="screen">
-            <h2>FREEDOM!</h2>
+            <h2>FREEDOM</h2>
             <div class="victory-content">
                 <p>Your child has turned 18.</p>
-                <p>You are free from alimony payments.</p>
-                <p>Was it worth it?</p>
+                <p>The payments are done.</p>
+                <br>
+                <p>They're starting their own life now.</p>
+                <p>You missed a lot. But you were always there</p>
+                <p>in the only way the system allowed.</p>
+                <br>
+                <p class="story">"Thanks, Dad. For everything."</p>
             </div>
             <div id="victory-stats"></div>
             <div class="menu-item selected" data-action="restart">> PLAY AGAIN</div>
@@ -112,6 +160,9 @@
 
     <script src="js/constants.js"></script>
     <script src="js/utils.js"></script>
+    <script src="js/sound.js"></script>
+    <script src="js/effects.js"></script>
+    <script src="js/highscores.js"></script>
     <script src="js/map.js"></script>
     <script src="js/entities.js"></script>
     <script src="js/player.js"></script>
