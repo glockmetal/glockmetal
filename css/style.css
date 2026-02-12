@@ -679,3 +679,254 @@ body {
         line-height: 1.4;
     }
 }
+
+/* ==========================================
+   INTRO / CHARACTER CREATION SCREEN
+   ========================================== */
+
+#intro-screen {
+    padding: 30px;
+    justify-content: center;
+}
+
+#intro-container {
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+}
+
+/* Intro scene visibility */
+.intro-scene {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    animation: fadeIn 0.5s ease-in;
+}
+
+.intro-scene.active {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Text styling */
+.intro-text {
+    line-height: 1.8;
+}
+
+.intro-text p {
+    margin: 5px 0;
+}
+
+.scene-description {
+    color: #666;
+    font-style: italic;
+    font-size: 14px;
+}
+
+.dialogue {
+    color: #00ff00;
+    font-size: 16px;
+}
+
+.dialogue.legal {
+    color: #ff0000;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+}
+
+.dialogue.motivation {
+    color: #ffff00;
+    font-weight: bold;
+    text-shadow: 0 0 10px #ffff00;
+}
+
+/* Blinking prompt */
+.intro-prompt {
+    margin-top: 30px;
+    color: #888;
+    font-size: 14px;
+}
+
+.blink {
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+/* Name input */
+.intro-input {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.intro-input label {
+    color: #00ffff;
+    font-size: 18px;
+}
+
+.intro-input input {
+    background-color: #0a0a0a;
+    border: 2px solid #00ff00;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 24px;
+    padding: 10px 20px;
+    text-align: center;
+    width: 250px;
+    outline: none;
+}
+
+.intro-input input:focus {
+    border-color: #ffff00;
+    box-shadow: 0 0 10px rgba(255, 255, 0, 0.3);
+}
+
+.intro-input input::placeholder {
+    color: #333;
+}
+
+.input-hint {
+    color: #666;
+    font-size: 12px;
+}
+
+/* Job selection */
+.job-selection {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.selection-label {
+    color: #00ffff;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.job-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 20px;
+}
+
+.job-option {
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: all 0.1s;
+    text-align: left;
+    border: 1px solid transparent;
+}
+
+.job-option:hover {
+    color: #ffff00;
+    border-color: #333;
+}
+
+.job-option.selected {
+    color: #ffff00;
+    border-color: #ffff00;
+    background-color: rgba(255, 255, 0, 0.1);
+}
+
+.job-option .job-name {
+    font-weight: bold;
+}
+
+.job-option .job-class {
+    color: #888;
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+/* Job description panel */
+.job-description {
+    border: 1px solid #333;
+    padding: 15px;
+    background-color: #050505;
+    min-height: 120px;
+    text-align: left;
+}
+
+.job-desc-text {
+    color: #888;
+    font-style: italic;
+}
+
+.job-desc-title {
+    color: #ffff00;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.job-desc-flavor {
+    color: #888;
+    font-style: italic;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.job-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.job-stat {
+    color: #00ff00;
+    font-size: 14px;
+}
+
+.job-stat.bonus {
+    color: #00ffff;
+}
+
+.job-stat.penalty {
+    color: #ff6666;
+}
+
+/* Player/child name display in final scene */
+.player-name-display,
+.child-name-display {
+    color: #ffff00;
+    font-weight: bold;
+}
+
+/* Mobile responsive for intro */
+@media (max-width: 600px) {
+    #intro-screen {
+        padding: 15px;
+    }
+
+    .dialogue {
+        font-size: 14px;
+    }
+
+    .scene-description {
+        font-size: 12px;
+    }
+
+    .intro-input input {
+        font-size: 20px;
+        width: 200px;
+    }
+
+    .job-description {
+        min-height: 100px;
+        padding: 10px;
+    }
+
+    .job-option {
+        padding: 8px 10px;
+    }
+}
