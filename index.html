@@ -96,6 +96,124 @@
             <div class="menu-item selected" data-action="continue">> CONTINUE</div>
         </div>
 
+        <!-- Intro/Character Creation Screen -->
+        <div id="intro-screen" class="screen">
+            <div id="intro-container">
+                <!-- Scene 1: Wake up -->
+                <div id="intro-scene-1" class="intro-scene active">
+                    <div class="intro-text">
+                        <p class="scene-description">[ Your apartment. 6:00 AM. ]</p>
+                        <p class="scene-description">[ The alarm screams. Another day. ]</p>
+                        <br>
+                        <p class="dialogue">You wake up on a mattress on the floor.</p>
+                        <p class="dialogue">The ceiling has a water stain shaped like regret.</p>
+                        <br>
+                        <p class="dialogue">It's been 3 months since the divorce was finalized.</p>
+                        <p class="dialogue">She got the house. She got the kid.</p>
+                        <p class="dialogue">You got... this.</p>
+                    </div>
+                    <div class="intro-prompt">
+                        <span class="blink">Press [SPACE] or tap to continue...</span>
+                    </div>
+                </div>
+
+                <!-- Scene 2: The letter -->
+                <div id="intro-scene-2" class="intro-scene">
+                    <div class="intro-text">
+                        <p class="scene-description">[ You check the mail. ]</p>
+                        <br>
+                        <p class="dialogue">There's a letter from the court.</p>
+                        <p class="dialogue">You already know what it says.</p>
+                        <br>
+                        <p class="dialogue legal">"NOTICE OF CHILD SUPPORT OBLIGATION"</p>
+                        <p class="dialogue legal">"Monthly payment: $500"</p>
+                        <p class="dialogue legal">"Failure to pay may result in:"</p>
+                        <p class="dialogue legal">- Wage garnishment</p>
+                        <p class="dialogue legal">- License suspension</p>
+                        <p class="dialogue legal">- Incarceration</p>
+                        <br>
+                        <p class="dialogue">You have 30 days.</p>
+                    </div>
+                    <div class="intro-prompt">
+                        <span class="blink">Press [SPACE] or tap to continue...</span>
+                    </div>
+                </div>
+
+                <!-- Scene 3: Name input -->
+                <div id="intro-scene-3" class="intro-scene">
+                    <div class="intro-text">
+                        <p class="scene-description">[ You look in the bathroom mirror. ]</p>
+                        <br>
+                        <p class="dialogue">Who even are you anymore?</p>
+                        <p class="dialogue">You try to remember...</p>
+                    </div>
+                    <div class="intro-input">
+                        <label for="player-name">What is your name?</label>
+                        <input type="text" id="player-name" maxlength="12" placeholder="Enter name..." autocomplete="off">
+                        <p class="input-hint">(Press [ENTER] to confirm)</p>
+                    </div>
+                </div>
+
+                <!-- Scene 4: Child's name -->
+                <div id="intro-scene-4" class="intro-scene">
+                    <div class="intro-text">
+                        <p class="scene-description">[ A photo on the counter. The only one you kept. ]</p>
+                        <br>
+                        <p class="dialogue">A small face smiles back at you.</p>
+                        <p class="dialogue">5 years old. Doesn't understand any of this.</p>
+                        <p class="dialogue">Just knows daddy doesn't live here anymore.</p>
+                    </div>
+                    <div class="intro-input">
+                        <label for="child-name">What is your child's name?</label>
+                        <input type="text" id="child-name" maxlength="12" placeholder="Enter name..." autocomplete="off">
+                        <p class="input-hint">(Press [ENTER] to confirm)</p>
+                    </div>
+                </div>
+
+                <!-- Scene 5: Job selection -->
+                <div id="intro-scene-5" class="intro-scene">
+                    <div class="intro-text">
+                        <p class="scene-description">[ You open the classifieds. ]</p>
+                        <br>
+                        <p class="dialogue">You need work. Anything.</p>
+                        <p class="dialogue">What skills do you have left?</p>
+                    </div>
+                    <div class="job-selection">
+                        <p class="selection-label">Choose your starting job:</p>
+                        <div id="job-list" class="job-list">
+                            <!-- Jobs will be populated by JavaScript -->
+                        </div>
+                        <div id="job-description" class="job-description">
+                            <p class="job-desc-text">Select a job to see details...</p>
+                        </div>
+                    </div>
+                    <div class="intro-prompt">
+                        <span>Press [ENTER] or tap to confirm selection</span>
+                    </div>
+                </div>
+
+                <!-- Scene 6: Final motivation -->
+                <div id="intro-scene-6" class="intro-scene">
+                    <div class="intro-text">
+                        <p class="scene-description">[ You put on your work clothes. ]</p>
+                        <br>
+                        <p class="dialogue" id="final-dialogue-1">Time to go, <span class="player-name-display">friend</span>.</p>
+                        <p class="dialogue">The grind never stops.</p>
+                        <br>
+                        <p class="dialogue">But every dollar you earn...</p>
+                        <p class="dialogue">Every obstacle you overcome...</p>
+                        <p class="dialogue" id="final-dialogue-2">It's all for <span class="child-name-display">them</span>.</p>
+                        <br>
+                        <p class="dialogue motivation">13 years until freedom.</p>
+                        <p class="dialogue motivation">Let's get to work.</p>
+                    </div>
+                    <div class="intro-prompt">
+                        <span class="blink">>> BEGIN <<</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Game Screen -->
         <div id="game-screen" class="screen">
             <div id="game-header">
