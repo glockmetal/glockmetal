@@ -589,6 +589,22 @@ function startGame() {
 // =============================================================================
 
 document.addEventListener('keydown', (e) => {
+    // Check if user is typing in an input field
+    // If so, allow normal typing behavior (don't intercept keys)
+    const activeElement = document.activeElement;
+    const isTypingInInput = activeElement &&
+        (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA');
+
+    // If typing in input, only intercept Enter (to submit) and Escape
+    if (isTypingInInput) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            advanceIntroScene();
+        }
+        // Allow all other keys to pass through for normal typing
+        return;
+    }
+
     // Prevent default browser behavior for game keys
     // This stops arrow keys from scrolling, space from activating buttons, etc.
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
